@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,19 +11,25 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Form</string>
   </property>
-  <widget class="QPushButton" name="button">
+  <widget class="QPushButton" name="btn">
    <property name="geometry">
     <rect>
-     <x>160</x>
+     <x>140</x>
      <y>120</y>
-     <width>100</width>
+     <width>113</width>
      <height>32</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
    <property name="text">
-    <string>Go to screen2</string>
+    <string>exit</string>
    </property>
   </widget>
  </widget>
