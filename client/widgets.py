@@ -14,7 +14,6 @@ class Authorization(QWidget):
     # переключается на виджет лобби
     @staticmethod
     def switch_on_lobby():
-        lobby = Lobby()
         widget.addWidget(lobby)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
@@ -29,7 +28,6 @@ class Lobby(QWidget):
     # переключение на виджет игры
     @staticmethod
     def switch_on_game():
-        game = Game()
         widget.addWidget(game)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
@@ -44,7 +42,7 @@ class Game(QWidget):
     # переключение на виджет лобби
     @staticmethod
     def switch_on_lobby():
-        lobby = Lobby()
+
         widget.addWidget(lobby)
         widget.setCurrentIndex(widget.currentIndex() - 1)
 
