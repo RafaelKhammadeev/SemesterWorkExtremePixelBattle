@@ -1,7 +1,7 @@
 import sys
 import socket
 from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QDialog, QStackedWidget
+from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox
 import typing
 
 
@@ -9,20 +9,48 @@ import typing
 class Authorization(QWidget):
     def __init__(self):
         super().__init__()
+        print("The user is at the authorization stage!")
+
+        self.nickname = None
+
         uic.loadUi("design/authorization.ui", self)
         self.btn.clicked.connect(self.switch_on_lobby)
 
     # переключается на виджет лобби
     def switch_on_lobby(self):
-        lobby = Lobby()
-        widget.addWidget(lobby)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
+        edit_label_text = self.name_text_edit.text()
+
+        # проверка имени на длину
+        if len(edit_label_text) < 4:
+            self.warning_popup()
+        else:
+
+            # фиксируем никнейм пользователя
+            self.nickname = edit_label_text
+
+            lobby = Lobby()
+            widget.addWidget(lobby)
+            widget.setCurrentIndex(widget.currentIndex() + 1)
+
+    # всплывающее предупреждающее окно(alert)
+    def warning_popup(self):
+        alert = QMessageBox(self)
+        alert.setWindowTitle("Warning")
+        alert.setText("Name cannot be EMPTY and SHORTER than 4 characters")
+        alert.setIcon(QMessageBox.Icon.Warning)
+        # msg.setIcon(QMessageBox_Icon=Warning)
+        button = alert.exec()
+
+        if button == QMessageBox.StandardButton.Ok:
+            print("ОК!")
 
 
 # виджет с лобби
 class Lobby(QWidget):
     def __init__(self):
         super().__init__()
+        print("The user is in the lobby!")
+
         uic.loadUi("design/lobby.ui", self)
         self.btn_lby_1.clicked.connect(self.switch_on_game)
 
@@ -32,14 +60,13 @@ class Lobby(QWidget):
         widget.addWidget(game)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
-    # всплывающее предупреждающее окно(alert)
-    # def warning_popup(self):
-
 
 # Основной экран с игрой
 class Game(QWidget):
     def __init__(self):
         super().__init__()
+        print("The user is in the game!")
+
         uic.loadUi("design/game.ui", self)
         self.btn.clicked.connect(self.switch_on_lobby)
 
