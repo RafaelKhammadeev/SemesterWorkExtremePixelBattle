@@ -2,6 +2,7 @@ import sys
 import socket
 from PyQt6 import uic
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QDialog, QStackedWidget
+import typing
 
 
 # виджет авторизации
@@ -12,8 +13,7 @@ class Authorization(QWidget):
         self.btn.clicked.connect(self.switch_on_lobby)
 
     # переключается на виджет лобби
-    @staticmethod
-    def switch_on_lobby():
+    def switch_on_lobby(self):
         widget.addWidget(lobby)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
@@ -26,10 +26,13 @@ class Lobby(QWidget):
         self.btn.clicked.connect(self.switch_on_game)
 
     # переключение на виджет игры
-    @staticmethod
-    def switch_on_game():
+    def switch_on_game(self):
         widget.addWidget(game)
         widget.setCurrentIndex(widget.currentIndex() + 1)
+
+    # всплывающее предупреждающее окно(alert)
+    # def warning_popup(self):
+
 
 
 # Основной экран с игрой
