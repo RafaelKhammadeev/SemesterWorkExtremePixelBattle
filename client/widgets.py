@@ -14,6 +14,7 @@ class Authorization(QWidget):
 
     # переключается на виджет лобби
     def switch_on_lobby(self):
+        lobby = Lobby()
         widget.addWidget(lobby)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
@@ -23,16 +24,16 @@ class Lobby(QWidget):
     def __init__(self):
         super().__init__()
         uic.loadUi("design/lobby.ui", self)
-        self.btn.clicked.connect(self.switch_on_game)
+        self.btn_lby_1.clicked.connect(self.switch_on_game)
 
     # переключение на виджет игры
     def switch_on_game(self):
+        game = Game()
         widget.addWidget(game)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
     # всплывающее предупреждающее окно(alert)
     # def warning_popup(self):
-
 
 
 # Основной экран с игрой
@@ -45,7 +46,7 @@ class Game(QWidget):
     # переключение на виджет лобби
     @staticmethod
     def switch_on_lobby():
-
+        lobby = Lobby()
         widget.addWidget(lobby)
         widget.setCurrentIndex(widget.currentIndex() - 1)
 
@@ -54,11 +55,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     widget = QStackedWidget()
     authorization = Authorization()
-    lobby = Lobby()
-    game = Game()
     widget.addWidget(authorization)
-    widget.addWidget(lobby)
-    widget.addWidget(game)
     widget.setFixedSize(500, 500)
     widget.show()
     sys.exit(app.exec())
