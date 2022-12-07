@@ -49,7 +49,7 @@ class Authorization(QWidget):
 class Lobby(QWidget):
     def __init__(self):
         super().__init__()
-        print("The user is in the lobby!")
+        print("User in lobby!")
 
         uic.loadUi("design/lobby.ui", self)
         self.btn_lby_1.clicked.connect(self.switch_on_game)
@@ -65,7 +65,7 @@ class Lobby(QWidget):
 class Game(QWidget):
     def __init__(self):
         super().__init__()
-        print("The user is in the game!")
+        print("User in the game!")
 
         uic.loadUi("design/game.ui", self)
         self.btn.clicked.connect(self.switch_on_lobby)
