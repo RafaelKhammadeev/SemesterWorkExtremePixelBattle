@@ -79,19 +79,17 @@ class Game(QWidget):
     def init_gui(self):
         # убираем отступы у grid
         self.button_area.setSpacing(0)
-        self.button_area.setContentsMargins(0, 0, 0, 0)
+        self.group_button_label.setContentsMargins(60, 0, 60, 0)
 
-        btn_w, btn_h = 30, 36
+        btn_w, btn_h = 37, 37
         for i in range(30):
             for j in range(30):
                 # дизайн кнопок
                 btn = QPushButton(f"btn_{i}_{j}")
                 btn.setMinimumSize(btn_w, btn_h)
                 btn.setStyleSheet("background-color : rgb(255, 255, 255);"
-                                  "margin: 0;"
-                                  "padding: 0")
+                                  "margin: 0px ,8px, 0px, 0px;")
 
-                # btn.clicked.connect(lambda state, x=i, y=j: self.change_color(x, y))
                 self.button_area.addWidget(btn, i, j)
 
                 self.all_buttons.append(btn)
