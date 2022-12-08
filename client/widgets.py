@@ -1,7 +1,7 @@
 import sys
 import socket
 from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox
+from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton, QGridLayout
 import typing
 
 
@@ -66,10 +66,23 @@ class Game(QWidget):
     def __init__(self):
         super().__init__()
         print("User in the game!")
-
+        self.all_buttons = []
         uic.loadUi("design/game.ui", self)
-        self.btn.clicked.connect(self.switch_on_lobby)
 
+        self.init_gui()
+
+        self.btn_exit.clicked.connect(self.switch_on_lobby)
+
+    def init_gui(self):
+        btn_w, btn_h = 20, 20
+        for i in range(30):
+            for j in range(30):
+                btn = QPushButton(f"btn_{i}_{j}")
+                btn.setMinimumSize(btn_h, btn_w)
+                # btn.clicked.connect(lambda state, x=i, y=j: self.change_color(x, y))
+                self.button_area.addWidget(btn, i, j)
+
+                self.all_buttons.append(btn)
     # переключение на виджет лобби
     @staticmethod
     def switch_on_lobby():
@@ -83,6 +96,5 @@ if __name__ == "__main__":
     widget = QStackedWidget()
     authorization = Authorization()
     widget.addWidget(authorization)
-    widget.setFixedSize(500, 500)
     widget.show()
     sys.exit(app.exec())
