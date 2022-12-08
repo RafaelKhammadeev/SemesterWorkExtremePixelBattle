@@ -1,7 +1,7 @@
 import sys
 import socket
 from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton, QGridLayout
+from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton
 import typing
 
 
@@ -12,6 +12,7 @@ class Authorization(QWidget):
         print("The user is at the authorization stage!")
 
         self.nickname = None
+        self.setMinimumSize(500, 500)
 
         uic.loadUi("design/authorization.ui", self)
         self.btn.clicked.connect(self.switch_on_lobby)
@@ -51,6 +52,8 @@ class Lobby(QWidget):
         super().__init__()
         print("User in lobby!")
 
+        self.setMinimumSize(500, 500)
+
         uic.loadUi("design/lobby.ui", self)
         self.btn_lby_1.clicked.connect(self.switch_on_game)
 
@@ -74,15 +77,25 @@ class Game(QWidget):
         self.btn_exit.clicked.connect(self.switch_on_lobby)
 
     def init_gui(self):
-        btn_w, btn_h = 20, 20
+        # убираем отступы у grid
+        self.button_area.setSpacing(0)
+        self.button_area.setContentsMargins(0, 0, 0, 0)
+
+        btn_w, btn_h = 30, 36
         for i in range(30):
             for j in range(30):
+                # дизайн кнопок
                 btn = QPushButton(f"btn_{i}_{j}")
-                btn.setMinimumSize(btn_h, btn_w)
+                btn.setMinimumSize(btn_w, btn_h)
+                btn.setStyleSheet("background-color : rgb(255, 255, 255);"
+                                  "margin: 0;"
+                                  "padding: 0")
+
                 # btn.clicked.connect(lambda state, x=i, y=j: self.change_color(x, y))
                 self.button_area.addWidget(btn, i, j)
 
                 self.all_buttons.append(btn)
+
     # переключение на виджет лобби
     @staticmethod
     def switch_on_lobby():
