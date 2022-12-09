@@ -1,6 +1,8 @@
 import sys
 import socket
+import numpy as np
 from PyQt6 import uic
+from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton
 import typing
 
@@ -64,6 +66,12 @@ class Lobby(QWidget):
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
 
+# базовый класс для всех объектов модуля
+class Communication(QObject):
+    # создаем свой сигнал
+    dataSignal = pyqtSignal(int, int)
+
+
 # Основной экран с игрой
 class Game(QWidget):
     def __init__(self):
@@ -71,6 +79,10 @@ class Game(QWidget):
         print("User in the game!")
         self.all_buttons = []
         uic.loadUi("design/game.ui", self)
+
+        # обработчик сигнала, связанного с объектом
+        self.comm = Communication()
+        self.comm.dataSignal.connect(self.change_color)
 
         self.init_gui()
 
@@ -81,14 +93,17 @@ class Game(QWidget):
         self.button_area.setSpacing(0)
         self.group_button_label.setContentsMargins(60, 0, 60, 0)
 
-        btn_w, btn_h = 20, 10
+        btn_w, btn_h = 35, 35
+
         for i in range(30):
             for j in range(30):
                 # дизайн кнопок
-                btn = QPushButton(f"btn_{i}_{j}")
-                btn.setMinimumSize(btn_w, btn_h)
+                btn = QPushButton()
+                btn.setMaximumSize(btn_w, btn_h)
                 btn.setStyleSheet("background-color : rgb(255, 255, 255);"
                                   "margin: 0px ,8px, 0px, 0px;")
+                btn.clicked.connect(lambda state, x=i, y=j: self.change_color(x, y))
+                print(i,j)
 
                 self.button_area.addWidget(btn, i, j)
 
@@ -100,6 +115,14 @@ class Game(QWidget):
         lobby = Lobby()
         widget.addWidget(lobby)
         widget.setCurrentIndex(widget.currentIndex() - 1)
+
+    # смена цвета кнопки
+    @pyqtSlot(int, int)
+    def change_color(self, i, j):
+        print(i, j)
+        r, g, b = np.random.uniform(0, 255, 3)
+        btn = self.all_buttons[i * 30 + j]
+        btn.setStyleSheet(f"background-color : rgb({r}, {g}, {b})")
 
 
 if __name__ == "__main__":
