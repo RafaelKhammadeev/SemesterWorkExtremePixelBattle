@@ -90,20 +90,22 @@ class Game(QWidget):
 
     def init_gui(self):
         # убираем отступы у grid
-        self.button_area.setSpacing(0)
-        self.group_button_label.setContentsMargins(60, 0, 60, 0)
+        self.button_area.setVerticalSpacing(12)
+        self.button_area.setHorizontalSpacing(0)
+        self.group_button_label.setContentsMargins(0, 0, 0, 0)
 
-        btn_w, btn_h = 35, 35
+        btn_max_w, btn_max_h = 27, 27
+        btn_min_w, btn_min_h = 20, 20
 
         for i in range(30):
             for j in range(30):
                 # дизайн кнопок
                 btn = QPushButton()
-                btn.setMaximumSize(btn_w, btn_h)
+                btn.setMinimumSize(btn_min_w, btn_min_h)
+                btn.setMaximumSize(btn_max_w, btn_max_h)
                 btn.setStyleSheet("background-color : rgb(255, 255, 255);"
-                                  "margin: 0px ,8px, 0px, 0px;")
+                                  "margin: 0px ,0px, 0px, 0px;")
                 btn.clicked.connect(lambda state, x=i, y=j: self.change_color(x, y))
-                print(i,j)
 
                 self.button_area.addWidget(btn, i, j)
 
@@ -123,6 +125,23 @@ class Game(QWidget):
         r, g, b = np.random.uniform(0, 255, 3)
         btn = self.all_buttons[i * 30 + j]
         btn.setStyleSheet(f"background-color : rgb({r}, {g}, {b})")
+
+    # TODO должно появляться окно Qmessagebox с вопросом
+    # TODO тип вы точно хотите выйти, если да то выходит
+    # TODO если нет то нет:D
+    # TODO примерно нужно реализовать. как warning popup
+    # TODO только этот виджет должен иметь две кнопки, отмена и ок
+    def exit_popup(self):
+        pass
+
+    # TODO также должно появляться окошко (alert)
+    # TODO тип с текстом вы точно хотите сохранить картинку
+    # TODO и с двумя кнопками сохранить и отмена
+    # TODO если нажать на кнопку сохранить, то должно произойти сохранение
+    # TODO через pilow, думаю сохранять картинки будем в папку picture
+    # TODO ну кнопка отмена просто возвращает обратно
+    def save_popup(self):
+        pass
 
 
 if __name__ == "__main__":
