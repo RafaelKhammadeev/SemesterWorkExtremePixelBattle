@@ -81,7 +81,7 @@ class Game(QWidget):
         self.button_area.setSpacing(0)
         self.group_button_label.setContentsMargins(60, 0, 60, 0)
 
-        btn_w, btn_h = 37, 37
+        btn_w, btn_h = 20, 10
         for i in range(30):
             for j in range(30):
                 # дизайн кнопок

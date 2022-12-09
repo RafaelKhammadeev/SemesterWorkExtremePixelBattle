@@ -40,6 +40,7 @@
        <property name="font">
         <font>
          <pointsize>15</pointsize>
+         <weight>75</weight>
          <bold>true</bold>
          <stylestrategy>PreferDefault</stylestrategy>
         </font>
@@ -210,6 +211,7 @@
         <property name="font">
          <font>
           <pointsize>15</pointsize>
+          <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -368,11 +370,26 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="font">
+        <font>
+         <pointsize>30</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>SAVE</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="btn_exit">
        <property name="font">
         <font>
          <family>Montserrat</family>
          <pointsize>30</pointsize>
+         <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
