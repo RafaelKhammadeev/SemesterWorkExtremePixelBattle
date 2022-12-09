@@ -40,7 +40,6 @@
        <property name="font">
         <font>
          <pointsize>15</pointsize>
-         <weight>75</weight>
          <bold>true</bold>
          <stylestrategy>PreferDefault</stylestrategy>
         </font>
@@ -211,7 +210,6 @@
         <property name="font">
          <font>
           <pointsize>15</pointsize>
-          <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -375,7 +373,6 @@
         <font>
          <family>Montserrat</family>
          <pointsize>30</pointsize>
-         <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
@@ -385,6 +382,13 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
