@@ -1,9 +1,11 @@
 import sys
 import socket
 import numpy as np
+import time
 from PyQt6 import uic
 from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
-from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton
+from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton, QDialogButtonBox, \
+    QVBoxLayout, QLabel
 import typing
 
 
@@ -37,12 +39,8 @@ class Authorization(QWidget):
 
     # всплывающее предупреждающее окно(alert)
     def warning_popup(self):
-        alert = QMessageBox(self)
-        alert.setWindowTitle("Warning")
-        alert.setText("Name cannot be EMPTY and SHORTER than 4 characters")
-        alert.setIcon(QMessageBox.Icon.Warning)
-        # msg.setIcon(QMessageBox_Icon=Warning)
-        button = alert.exec()
+        button = QMessageBox.warning(self, "Warning", "Name cannot be EMPTY and SHORTER than 4 characters",
+                                     buttons=QMessageBox.StandardButton.Ok)
 
         if button == QMessageBox.StandardButton.Ok:
             print("ОК!")
@@ -68,7 +66,7 @@ class Lobby(QWidget):
 
 # базовый класс для всех объектов модуля
 class Communication(QObject):
-    # создаем свой сигнал
+    # создаем свои сигналы
     dataSignal = pyqtSignal(int, int)
     colorDataSignal = pyqtSignal(int, int, int)
 
@@ -106,8 +104,10 @@ class Game(QWidget):
         self.init_gui()
         self.choose_color()
 
-        self.btn_exit.clicked.connect(self.switch_on_lobby)
+        self.btn_exit.clicked.connect(self.exit_popup)
+        self.btn_save.clicked.connect(self.save_popup)
 
+    # Генерирует поле кнопок, и возбуждает каждую кнопку
     def init_gui(self):
         # убираем отступы у grid
         self.button_area.setVerticalSpacing(12)
@@ -131,18 +131,9 @@ class Game(QWidget):
 
                 self.all_buttons.append(btn)
 
-        # переключение на виджет лобби
-
-    @staticmethod
-    def switch_on_lobby():
-        lobby = Lobby()
-        widget.addWidget(lobby)
-        widget.setCurrentIndex(widget.currentIndex() - 1)
-
+    # Возбуждает сигналы и передает значения цвета
     def choose_color(self):
         for color_btn, color in self.colors_button.items():
-            print(color_btn, color)
-            print(color)
             r, g, b = color
             color_btn.clicked.connect(lambda state, x=r, y=g, z=b: self.save_chosen_btn(x, y, z))
 
@@ -154,18 +145,19 @@ class Game(QWidget):
     # смена цвета кнопки
     @pyqtSlot(int, int)
     def change_color(self, i, j):
-        print(self.current_color)
         r, g, b = self.current_color
         btn = self.all_buttons[i * 30 + j]
         btn.setStyleSheet(f"background-color : rgb({r}, {g}, {b})")
 
-    # TODO должно появляться окно Qmessagebox с вопросом
-    # TODO тип вы точно хотите выйти, если да то выходит
-    # TODO если нет то нет:D
-    # TODO примерно нужно реализовать. как warning popup
-    # TODO только этот виджет должен иметь две кнопки, отмена и ок
     def exit_popup(self):
-        pass
+        button = QMessageBox.question(self, '', "You really wanna to exit?",
+                                      buttons=QMessageBox.StandardButton.No | QMessageBox.StandardButton.Yes,
+                                      defaultButton=QMessageBox.StandardButton.Yes)
+
+        if button == QMessageBox.StandardButton.Yes:
+            lobby = Lobby()
+            widget.addWidget(lobby)
+            widget.setCurrentIndex(widget.currentIndex() - 1)
 
     # TODO также должно появляться окошко (alert)
     # TODO тип с текстом вы точно хотите сохранить картинку
@@ -173,8 +165,15 @@ class Game(QWidget):
     # TODO если нажать на кнопку сохранить, то должно произойти сохранение
     # TODO через pilow, думаю сохранять картинки будем в папку picture
     # TODO ну кнопка отмена просто возвращает обратно
-    def save_popup(self):
-        pass
+    def save_popup(self, event):
+        button = QMessageBox.question(self, '', "You wanna save this picture?",
+                                      buttons=QMessageBox.StandardButton.Cancel | QMessageBox.StandardButton.Save,
+                                      defaultButton=QMessageBox.StandardButton.Save)
+
+        if button == QMessageBox.StandardButton.Save:
+            print("Save")
+        else:
+            print("Cancel")
 
 
 if __name__ == "__main__":

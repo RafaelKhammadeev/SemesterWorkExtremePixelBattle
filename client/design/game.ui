@@ -370,7 +370,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="btn_save">
        <property name="font">
         <font>
          <pointsize>30</pointsize>
