@@ -1,12 +1,11 @@
 import sys
+import time
 import socket
 import numpy as np
-import time
+from PIL import Image
 from PyQt6 import uic
 from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
-from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton, QDialogButtonBox, \
-    QVBoxLayout, QLabel
-import typing
+from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton
 
 
 # виджет авторизации
@@ -80,6 +79,7 @@ class Game(QWidget):
         # переменные
         self.all_buttons = []
         self.current_color = (255, 255, 255)
+        self.BUTTON_COUNT = 30
 
         # загрузка ui
         uic.loadUi("design/game.ui", self)
@@ -117,8 +117,8 @@ class Game(QWidget):
         btn_max_w, btn_max_h = 27, 27
         btn_min_w, btn_min_h = 20, 20
 
-        for i in range(30):
-            for j in range(30):
+        for i in range(self.BUTTON_COUNT):
+            for j in range(self.BUTTON_COUNT):
                 # дизайн кнопок
                 btn = QPushButton()
                 btn.setMinimumSize(btn_min_w, btn_min_h)
@@ -129,7 +129,8 @@ class Game(QWidget):
 
                 self.button_area.addWidget(btn, i, j)
 
-                self.all_buttons.append(btn)
+                list_button_color = [btn, self.current_color]
+                self.all_buttons.append(list_button_color)
 
     # Возбуждает сигналы и передает значения цвета
     def choose_color(self):
@@ -146,11 +147,17 @@ class Game(QWidget):
     @pyqtSlot(int, int)
     def change_color(self, i, j):
         r, g, b = self.current_color
-        btn = self.all_buttons[i * 30 + j]
-        btn.setStyleSheet(f"background-color : rgb({r}, {g}, {b})")
+
+        current_button_color = self.all_buttons[i * self.BUTTON_COUNT + j]
+
+        btn_obj = current_button_color[0]
+        # нужно для запоминания цвета кнопки
+        current_button_color[1] = self.current_color
+
+        btn_obj.setStyleSheet(f"background-color : rgb({r}, {g}, {b})")
 
     def exit_popup(self):
-        button = QMessageBox.question(self, '', "You really wanna to exit?",
+        button = QMessageBox.question(self, 'Question', "You really wanna to exit?",
                                       buttons=QMessageBox.StandardButton.No | QMessageBox.StandardButton.Yes,
                                       defaultButton=QMessageBox.StandardButton.Yes)
 
@@ -165,12 +172,23 @@ class Game(QWidget):
     # TODO если нажать на кнопку сохранить, то должно произойти сохранение
     # TODO через pilow, думаю сохранять картинки будем в папку picture
     # TODO ну кнопка отмена просто возвращает обратно
-    def save_popup(self, event):
-        button = QMessageBox.question(self, '', "You wanna save this picture?",
+    def save_popup(self):
+        button = QMessageBox.question(self, 'Question', "You wanna save this picture?",
                                       buttons=QMessageBox.StandardButton.Cancel | QMessageBox.StandardButton.Save,
                                       defaultButton=QMessageBox.StandardButton.Save)
 
         if button == QMessageBox.StandardButton.Save:
+            pixels = [btn_color[1] for btn_color in self.all_buttons]
+
+            # делим массив на части
+            array = np.array_split(pixels, self.BUTTON_COUNT, axis=0)
+
+            # Convert the pixels into an array using numpy
+            array = np.array(array, dtype=np.uint8)
+
+            # Use PIL to create an image from the new array of pixels
+            new_image = Image.fromarray(array)
+            new_image.save('heart.png')
             print("Save")
         else:
             print("Cancel")
