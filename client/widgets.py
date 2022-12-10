@@ -70,6 +70,7 @@ class Lobby(QWidget):
 class Communication(QObject):
     # создаем свой сигнал
     dataSignal = pyqtSignal(int, int)
+    colorDataSignal = pyqtSignal(int, int, int)
 
 
 # Основной экран с игрой
@@ -77,14 +78,33 @@ class Game(QWidget):
     def __init__(self):
         super().__init__()
         print("User in the game!")
+
+        # переменные
         self.all_buttons = []
+        self.current_color = (255, 255, 255)
+
+        # загрузка ui
         uic.loadUi("design/game.ui", self)
+
+        self.colors_button = {
+            self.btn_red: (255, 8, 0),
+            self.btn_blue: (35, 0, 255),
+            self.btn_green: (0, 194, 0),
+            self.btn_black: (0, 0, 0),
+            self.btn_white: (255, 255, 255),
+            self.btn_orange: (255, 129, 0),
+            self.btn_light_blue: (2, 212, 255),
+            self.btn_yellow: (255, 251, 0),
+            self.btn_purple: (135, 0, 255)
+        }
 
         # обработчик сигнала, связанного с объектом
         self.comm = Communication()
         self.comm.dataSignal.connect(self.change_color)
+        self.comm.colorDataSignal.connect(self.choose_color)
 
         self.init_gui()
+        self.choose_color()
 
         self.btn_exit.clicked.connect(self.switch_on_lobby)
 
@@ -111,18 +131,31 @@ class Game(QWidget):
 
                 self.all_buttons.append(btn)
 
-    # переключение на виджет лобби
+        # переключение на виджет лобби
+
     @staticmethod
     def switch_on_lobby():
         lobby = Lobby()
         widget.addWidget(lobby)
         widget.setCurrentIndex(widget.currentIndex() - 1)
 
+    def choose_color(self):
+        for color_btn, color in self.colors_button.items():
+            print(color_btn, color)
+            print(color)
+            r, g, b = color
+            color_btn.clicked.connect(lambda state, x=r, y=g, z=b: self.save_chosen_btn(x, y, z))
+
+    # Сохранение цвета выбранного пользователя с палитры
+    @pyqtSlot(int, int, int)
+    def save_chosen_btn(self, r, g, b):
+        self.current_color = r, g, b
+
     # смена цвета кнопки
     @pyqtSlot(int, int)
     def change_color(self, i, j):
-        print(i, j)
-        r, g, b = np.random.uniform(0, 255, 3)
+        print(self.current_color)
+        r, g, b = self.current_color
         btn = self.all_buttons[i * 30 + j]
         btn.setStyleSheet(f"background-color : rgb({r}, {g}, {b})")
 

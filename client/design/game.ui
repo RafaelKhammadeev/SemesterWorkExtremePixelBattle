@@ -307,7 +307,7 @@
          <string/>
         </property>
        </widget>
-       <widget class="QPushButton" name="pushButton_10">
+       <widget class="QPushButton" name="btn_purple">
         <property name="geometry">
          <rect>
           <x>29</x>
@@ -378,6 +378,9 @@
          <bold>true</bold>
         </font>
        </property>
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
+       </property>
        <property name="text">
         <string>SAVE</string>
        </property>
@@ -392,6 +395,9 @@
          <weight>75</weight>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::TabFocus</enum>
        </property>
        <property name="text">
         <string>EXIT</string>
