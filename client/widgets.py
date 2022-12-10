@@ -1,9 +1,11 @@
+import os
 import sys
 import time
 import socket
 import numpy as np
 from PIL import Image
 from PyQt6 import uic
+from datetime import datetime
 from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton
 
@@ -166,12 +168,6 @@ class Game(QWidget):
             widget.addWidget(lobby)
             widget.setCurrentIndex(widget.currentIndex() - 1)
 
-    # TODO также должно появляться окошко (alert)
-    # TODO тип с текстом вы точно хотите сохранить картинку
-    # TODO и с двумя кнопками сохранить и отмена
-    # TODO если нажать на кнопку сохранить, то должно произойти сохранение
-    # TODO через pilow, думаю сохранять картинки будем в папку picture
-    # TODO ну кнопка отмена просто возвращает обратно
     def save_popup(self):
         button = QMessageBox.question(self, 'Question', "You wanna save this picture?",
                                       buttons=QMessageBox.StandardButton.Cancel | QMessageBox.StandardButton.Save,
@@ -186,9 +182,22 @@ class Game(QWidget):
             # Convert the pixels into an array using numpy
             array = np.array(array, dtype=np.uint8)
 
+            # путь папки в которой будет сохраняться
+            file_image_path = "picture"
+            picture_path = "image.png"
+
+            # change format the date and time.
+            curr_datetime = datetime.now().strftime('%Y-%m-%d %H-%M-%S')
+
+            splitted_path = os.path.splitext(picture_path)
+
+            modified_picture_path = splitted_path[0] + curr_datetime + splitted_path[1]
+
             # Use PIL to create an image from the new array of pixels
             new_image = Image.fromarray(array)
-            new_image.save('heart.png')
+
+            # TODO в дальнейшем добавить и имя пользователя
+            new_image.save(f"{file_image_path}/{modified_picture_path}")
             print("Save")
         else:
             print("Cancel")
