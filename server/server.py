@@ -1,6 +1,7 @@
 import socket
-from threading import Thread
 from time import sleep
+import datetime
+from threading import Thread
 
 import pickle
 
@@ -18,11 +19,15 @@ class ConnectedClient(Thread):
             info = self.recv()
             msg = info.get('text')
             from_name = info.get('from')
-            text = f"[{from_name}]::{msg}"
+            date = info.get('when')
+            text = f"[{from_name}][{date}]::{msg}"
             self.server.send_all(text)
 
-    def send(self, msg):
-        self.sock.send(msg.encode('utf-8'))
+    def send(self, text):
+        protocol = {"text": text,
+                    "from": 'kek',
+                    "when": datetime.datetime.now()}
+        self.sock.send(pickle.dumps(protocol))
 
     def recv(self):
         obj = self.sock.recv(1024)
@@ -33,8 +38,10 @@ class ConnectedClient(Thread):
 class Server:
     def __init__(self, address):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # re-open port if busy
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind(address)
-        self.sock.listen(2)
+        self.sock.listen(3)
         self.clients = set()
 
     def send_all(self, text):

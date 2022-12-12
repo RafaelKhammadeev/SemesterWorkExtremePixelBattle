@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image
 from PyQt6 import uic
 from datetime import datetime
+from backend_client import BackendClient
 from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton
 
@@ -82,6 +83,7 @@ class Game(QWidget):
         self.all_buttons = []
         self.current_color = (255, 255, 255)
         self.BUTTON_COUNT = 30
+        self.get_signal = True
 
         # загрузка ui
         uic.loadUi("design/game.ui", self)
@@ -127,7 +129,8 @@ class Game(QWidget):
                 btn.setMaximumSize(btn_max_w, btn_max_h)
                 btn.setStyleSheet("background-color : rgb(255, 255, 255);"
                                   "margin: 0px ,0px, 0px, 0px;")
-                btn.clicked.connect(lambda state, x=i, y=j: self.change_color(x, y))
+                btn.clicked.connect(
+                    lambda state, x=i, y=j: self.change_color(x, y))
 
                 self.button_area.addWidget(btn, i, j)
 
@@ -145,6 +148,10 @@ class Game(QWidget):
     def save_chosen_btn(self, r, g, b):
         self.current_color = r, g, b
 
+        # разблокируем все кнопки
+        for btn in self.all_buttons:
+            btn[0].blockSignals(False)
+
     # смена цвета кнопки
     @pyqtSlot(int, int)
     def change_color(self, i, j):
@@ -157,6 +164,17 @@ class Game(QWidget):
         current_button_color[1] = self.current_color
 
         btn_obj.setStyleSheet(f"background-color : rgb({r}, {g}, {b})")
+
+        # блокируем сигналы у всех кнопок
+        for btn in self.all_buttons:
+            btn[0].blockSignals(True)
+
+    # def signal_sleep(self, time_signal_sleep):
+    #     time.sleep(time_signal_sleep)
+    #     self.get_signal = True
+
+    # TODO нужно вынести разблокировку сигнала, при выборе цвета, накрыть выбор цвета, каким нибудь
+    #   лейблом, чтоб нельзя было его выбрать
 
     def exit_popup(self):
         button = QMessageBox.question(self, 'Question', "You really wanna to exit?",
