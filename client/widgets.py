@@ -2,11 +2,12 @@ import os
 import sys
 import time
 import socket
+import threading
 import numpy as np
 from PIL import Image
-from PyQt6 import uic
+from PyQt6 import uic, QtTest
 from datetime import datetime
-from backend_client import BackendClient
+# from backend_client import BackendClient
 from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton
 
@@ -83,7 +84,7 @@ class Game(QWidget):
         self.all_buttons = []
         self.current_color = (255, 255, 255)
         self.BUTTON_COUNT = 30
-        self.get_signal = True
+        self.get_signal = False
 
         # загрузка ui
         uic.loadUi("design/game.ui", self)
@@ -107,6 +108,7 @@ class Game(QWidget):
 
         self.init_gui()
         self.choose_color()
+        self.thread_block_logic()
 
         self.btn_exit.clicked.connect(self.exit_popup)
         self.btn_save.clicked.connect(self.save_popup)
@@ -148,6 +150,8 @@ class Game(QWidget):
     def save_chosen_btn(self, r, g, b):
         self.current_color = r, g, b
 
+        self.get_signal = True
+
         # разблокируем все кнопки
         for btn in self.all_buttons:
             btn[0].blockSignals(False)
@@ -155,26 +159,45 @@ class Game(QWidget):
     # смена цвета кнопки
     @pyqtSlot(int, int)
     def change_color(self, i, j):
-        r, g, b = self.current_color
+        if self.get_signal:
+            r, g, b = self.current_color
 
-        current_button_color = self.all_buttons[i * self.BUTTON_COUNT + j]
+            current_button_color = self.all_buttons[i * self.BUTTON_COUNT + j]
 
-        btn_obj = current_button_color[0]
-        # нужно для запоминания цвета кнопки
-        current_button_color[1] = self.current_color
+            btn_obj = current_button_color[0]
+            # нужно для запоминания цвета кнопки
+            current_button_color[1] = self.current_color
 
-        btn_obj.setStyleSheet(f"background-color : rgb({r}, {g}, {b})")
+            btn_obj.setStyleSheet(f"background-color : rgb({r}, {g}, {b})")
 
-        # блокируем сигналы у всех кнопок
+            # блокируем сигналы у всех кнопок
+            for btn in self.all_buttons:
+                btn[0].blockSignals(True)
+
+    # логика thread для запуска signal_block_logic
+    def thread_block_logic(self):
+        print("Main    : before creating thread")
+        x = threading.Thread(target=self.signal_block_for_button, daemon=True)
+        print("Main    : before running thread")
+        x.run()
+
+    # подает сигнал блокировки сигнала (ну на перекрытие frame-ом)
+    def signal_block_for_button(self):
+
+        # блокирует выбор цвета, закрывает другим frame
+        def block_choose_color(time_block):
+            if self.get_signal:
+                time_block *= 1000
+                # отображается frame который, блокирует выбор цвета
+                self.stackedWidget.setCurrentIndex(1)
+
+                QtTest.QTest.qWait(time_block)
+
+                # возвращает frame выбора цвета
+                self.stackedWidget.setCurrentIndex(0)
+
         for btn in self.all_buttons:
-            btn[0].blockSignals(True)
-
-    # def signal_sleep(self, time_signal_sleep):
-    #     time.sleep(time_signal_sleep)
-    #     self.get_signal = True
-
-    # TODO нужно вынести разблокировку сигнала, при выборе цвета, накрыть выбор цвета, каким нибудь
-    #   лейблом, чтоб нельзя было его выбрать
+            btn[0].clicked.connect(lambda state, time_block=5: block_choose_color(time_block))
 
     def exit_popup(self):
         button = QMessageBox.question(self, 'Question', "You really wanna to exit?",
