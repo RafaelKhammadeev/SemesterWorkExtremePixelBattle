@@ -9,7 +9,7 @@ import datetime
 
 
 class BackendClient(QThread):
-    address = ("127.0.0.1", 10000)
+    address = ("127.0.0.1", 10001)
 
     def __init__(self, signal, name):
         super().__init__()
@@ -33,6 +33,9 @@ class BackendClient(QThread):
 
             self.signal.emit(text)
 
+    # Todo надо сделать обработку сигнала,
+    #  принимать не все поле, а принимать сделанные ходы пользователем
+    #  и менять основное поле которое будет крутиться в main thread
     def send(self, text):
         protocol = {"text": text,
                     "from": 'kek',
@@ -46,7 +49,6 @@ class Main(QMainWindow):
     def __init__(self, name):
         super().__init__()
 
-        self.second_screen = None
         self.name = name
         self.msg_signal.connect(self.recv_msg)
 
@@ -59,7 +61,7 @@ class Main(QMainWindow):
     def gui(self):
         self.chat_area: QTextEdit
 
-        uic.loadUi('chat.ui', self)
+        uic.loadUi('/Users/rafaelkhammadeev/AllProjects/Python/python03/SemesterWorkExtremePixelBattle/chat.ui', self)
 
         self.show()
 
@@ -74,9 +76,6 @@ class Main(QMainWindow):
 
     def clear_area(self):
         self.chat_area.setText("")
-        # prekol
-        # self.second_screen = QWidget()
-        # self.second_screen.show()
 
     def send_msg(self):
         text: str = self.input_area.text()

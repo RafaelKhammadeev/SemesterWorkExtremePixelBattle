@@ -36,7 +36,7 @@ class Authorization(QWidget):
             # фиксируем никнейм пользователя
             self.nickname = edit_label_text
 
-            lobby = Lobby()
+            lobby = Lobby(self.nickname)
             widget.addWidget(lobby)
             widget.setCurrentIndex(widget.currentIndex() + 1)
 
@@ -51,9 +51,10 @@ class Authorization(QWidget):
 
 # виджет с лобби
 class Lobby(QWidget):
-    def __init__(self):
+    def __init__(self, nickname):
         super().__init__()
         print("User in lobby!")
+        self.nickname = nickname
 
         self.setMinimumSize(500, 500)
 
@@ -62,7 +63,7 @@ class Lobby(QWidget):
 
     # переключение на виджет игры
     def switch_on_game(self):
-        game = Game()
+        game = Game(self.nickname)
         widget.addWidget(game)
         widget.setCurrentIndex(widget.currentIndex() + 1)
 
@@ -76,9 +77,13 @@ class Communication(QObject):
 
 # Основной экран с игрой
 class Game(QWidget):
-    def __init__(self):
+    def __init__(self, nickname):
         super().__init__()
         print("User in the game!")
+        self.nickname = nickname
+        print("-------------")
+        print(nickname)
+        print("-------------")
 
         # переменные
         self.all_buttons = []
@@ -106,10 +111,12 @@ class Game(QWidget):
         self.comm.dataSignal.connect(self.change_color)
         self.comm.colorDataSignal.connect(self.choose_color)
 
+        # вызов методов
         self.init_gui()
         self.choose_color()
         self.thread_block_logic()
 
+        # обработка кнопок
         self.btn_exit.clicked.connect(self.exit_popup)
         self.btn_save.clicked.connect(self.save_popup)
 

@@ -7,12 +7,10 @@ import pickle
 
 
 class ConnectedClient(Thread):
-    def __init__(self, server, client_socket, ip, port):
+    def __init__(self, server, client_socket):
         super().__init__()
         self.sock = client_socket
         self.server = server
-        self.ip = ip
-        self.port = port
 
     def run(self):
         while 1:
@@ -21,7 +19,7 @@ class ConnectedClient(Thread):
             from_name = info.get('from')
             date = info.get('when')
             text = f"[{from_name}][{date}]::{msg}"
-            self.server.send_all(text)
+            self.server.send_all_client(text)
 
     def send(self, text):
         protocol = {"text": text,
@@ -34,7 +32,8 @@ class ConnectedClient(Thread):
         info = pickle.loads(obj)
         return info
 
-
+# Todo поле должно находиться в сервере
+#  ну и где то получать значения
 class Server:
     def __init__(self, address):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -44,21 +43,24 @@ class Server:
         self.sock.listen(3)
         self.clients = set()
 
-    def send_all(self, text):
+    def send_all_client(self, text):
         for client in self.clients:
             client.send(text)
 
     def start_server(self):
         while 1:
+            # ждет подключение клиента
             client_socket, (ip, port) = self.sock.accept()
             print(f"Client ip={ip} [{port}] connected")
-            connected_client = ConnectedClient(self, client_socket, ip, port)
+            connected_client = ConnectedClient(self, client_socket)
+
+            # начала работы клиента
             connected_client.start()
             self.clients.add(connected_client)
             # welcome msg because argment list is empty
-            self.send_all(f"К нам подключился {ip} [{port}]")
+            self.send_all_client(f"К нам подключился {ip} [{port}]")
 
 
-address = ("127.0.0.1", 10000)
+address = ("127.0.0.1", 10001)
 server = Server(address)
 server.start_server()
