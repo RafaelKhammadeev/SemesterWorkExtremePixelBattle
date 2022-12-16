@@ -9,20 +9,23 @@ from PyQt6 import uic, QtTest
 from datetime import datetime
 # from backend_client import BackendClient
 from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
-from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton
+from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton, QMainWindow
 
 
 # виджет авторизации
-class Authorization(QWidget):
+class Authorization(QMainWindow):
     def __init__(self):
         super().__init__()
         print("The user is at the authorization stage!")
 
         self.nickname = None
+        # для чего сохраняем?
+        self.lobby_widget = None
         self.setMinimumSize(500, 500)
 
         uic.loadUi("design/authorization.ui", self)
         self.btn.clicked.connect(self.switch_on_lobby)
+        self.show()
 
     # переключается на виджет лобби
     def switch_on_lobby(self):
@@ -36,9 +39,9 @@ class Authorization(QWidget):
             # фиксируем никнейм пользователя
             self.nickname = edit_label_text
 
-            lobby = Lobby(self.nickname)
-            widget.addWidget(lobby)
-            widget.setCurrentIndex(widget.currentIndex() + 1)
+            self.lobby_widget = Lobby(self.nickname)
+            self.lobby_widget.show()
+            self.close()
 
     # всплывающее предупреждающее окно(alert)
     def warning_popup(self):
@@ -56,6 +59,7 @@ class Lobby(QWidget):
         print("User in lobby!")
         self.nickname = nickname
 
+        self.game_widget = None
         self.setMinimumSize(500, 500)
 
         uic.loadUi("design/lobby.ui", self)
@@ -63,9 +67,9 @@ class Lobby(QWidget):
 
     # переключение на виджет игры
     def switch_on_game(self):
-        game = Game(self.nickname)
-        widget.addWidget(game)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
+        self.game_widget = Game(self.nickname)
+        self.game_widget.show()
+        self.close()
 
 
 # базовый класс для всех объектов модуля
@@ -80,16 +84,17 @@ class Game(QWidget):
     def __init__(self, nickname):
         super().__init__()
         print("User in the game!")
-        self.nickname = nickname
-        print("-------------")
-        print(nickname)
-        print("-------------")
+
+        # Todo тут должен быть backend client
+        #   send wno am i
 
         # переменные
         self.all_buttons = []
         self.current_color = (255, 255, 255)
         self.BUTTON_COUNT = 30
         self.get_signal = False
+        self.nickname = nickname
+        self.lobby_widget = None
 
         # загрузка ui
         uic.loadUi("design/game.ui", self)
@@ -212,9 +217,9 @@ class Game(QWidget):
                                       defaultButton=QMessageBox.StandardButton.Yes)
 
         if button == QMessageBox.StandardButton.Yes:
-            lobby = Lobby()
-            widget.addWidget(lobby)
-            widget.setCurrentIndex(widget.currentIndex() - 1)
+            self.lobby_widget = Lobby(self.nickname)
+            self.lobby_widget.show()
+            self.close()
 
     def save_popup(self):
         button = QMessageBox.question(self, 'Question', "You wanna save this picture?",
@@ -253,8 +258,5 @@ class Game(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    widget = QStackedWidget()
-    authorization = Authorization()
-    widget.addWidget(authorization)
-    widget.show()
+    widget = Authorization()
     sys.exit(app.exec())
