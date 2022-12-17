@@ -219,7 +219,7 @@ class Game(QWidget):
                 self.stackedWidget.setCurrentIndex(0)
 
         for btn in self.all_buttons:
-            btn[0].clicked.connect(lambda state, time_block=5: block_choose_color(time_block))
+            btn[0].clicked.connect(lambda state, time_block=1: block_choose_color(time_block))
 
     def exit_popup(self):
         button = QMessageBox.question(self, 'Question', "You really wanna to exit?",
