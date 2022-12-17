@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 from PyQt6 import uic, QtTest
 from datetime import datetime
-# from backend_client import BackendClient
+from backend_client import BackendClient
 from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton, QMainWindow
 
@@ -81,12 +81,11 @@ class Communication(QObject):
 
 # Основной экран с игрой
 class Game(QWidget):
+    msg_signal = pyqtSignal(str)
+
     def __init__(self, nickname):
         super().__init__()
         print("User in the game!")
-
-        # Todo тут должен быть backend client
-        #   send wno am i
 
         # переменные
         self.all_buttons = []
@@ -95,6 +94,12 @@ class Game(QWidget):
         self.get_signal = False
         self.nickname = nickname
         self.lobby_widget = None
+
+        # Подключение Backend Client
+        self.client = BackendClient(self.msg_signal, self.nickname)
+        self.client.start()
+        # Todo тут должен быть backend client
+        #   send wno am i
 
         # загрузка ui
         uic.loadUi("design/game.ui", self)
