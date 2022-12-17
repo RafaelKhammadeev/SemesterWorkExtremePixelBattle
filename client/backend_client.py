@@ -31,6 +31,6 @@ class BackendClient(QThread):
     #  и менять основное поле которое будет крутиться в main thread
     def send(self, text):
         protocol = {"text": text,
-                    "from": 'kek',
+                    "from": self.name,
                     "when": datetime.datetime.now()}
         self.sock.send(pickle.dumps(protocol))

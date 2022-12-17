@@ -75,14 +75,13 @@ class Lobby(QWidget):
 # базовый класс для всех объектов модуля
 class Communication(QObject):
     # создаем свои сигналы
+    msg_signal = pyqtSignal(str)
     dataSignal = pyqtSignal(int, int)
     colorDataSignal = pyqtSignal(int, int, int)
 
 
 # Основной экран с игрой
 class Game(QWidget):
-    msg_signal = pyqtSignal(str)
-
     def __init__(self, nickname):
         super().__init__()
         print("User in the game!")
@@ -94,12 +93,6 @@ class Game(QWidget):
         self.get_signal = False
         self.nickname = nickname
         self.lobby_widget = None
-
-        # Подключение Backend Client
-        self.client = BackendClient(self.msg_signal, self.nickname)
-        self.client.start()
-        # Todo тут должен быть backend client
-        #   send wno am i
 
         # загрузка ui
         uic.loadUi("design/game.ui", self)
@@ -120,6 +113,13 @@ class Game(QWidget):
         self.comm = Communication()
         self.comm.dataSignal.connect(self.change_color)
         self.comm.colorDataSignal.connect(self.choose_color)
+        self.comm.msg_signal.connect(self.recv_msg)
+
+        # Подключение Backend Client
+        self.client = BackendClient(self.comm.msg_signal, self.nickname)
+        self.client.start()
+        # Todo тут должен быть backend client
+        #   send wno am i
 
         # вызов методов
         self.init_gui()
@@ -161,6 +161,11 @@ class Game(QWidget):
         for color_btn, color in self.colors_button.items():
             r, g, b = color
             color_btn.clicked.connect(lambda state, x=r, y=g, z=b: self.save_chosen_btn(x, y, z))
+
+    # отображения появления игроков
+    @pyqtSlot(str)
+    def recv_msg(self, text):
+        self.info_area.append(text)
 
     # Сохранение цвета выбранного пользователя с палитры
     @pyqtSlot(int, int, int)
