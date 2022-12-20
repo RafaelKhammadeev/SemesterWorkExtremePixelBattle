@@ -1,15 +1,20 @@
 import os
 import sys
-import time
-import socket
 import threading
+import time
+
 import numpy as np
 from PIL import Image
-from PyQt6 import uic, QtTest
 from datetime import datetime
+from PyQt6 import uic, QtTest
+# from config import BUTTON_COUNT
+# from server.server import Server
 from backend_client import BackendClient
 from PyQt6.QtCore import pyqtSlot, pyqtSignal, QObject
-from PyQt6.QtWidgets import QApplication, QWidget, QStackedWidget, QMessageBox, QPushButton, QMainWindow
+from PyQt6.QtWidgets import QApplication, QWidget, QMessageBox, QPushButton, QMainWindow
+
+# данные с конфиг, вынес сюда тк не получается запустить без него
+BUTTON_COUNT = 30
 
 
 # виджет авторизации
@@ -89,7 +94,6 @@ class Game(QWidget):
         # переменные
         self.all_buttons = []
         self.current_color = (255, 255, 255)
-        self.BUTTON_COUNT = 30
         self.get_signal = False
         self.nickname = nickname
         self.lobby_widget = None
@@ -118,6 +122,11 @@ class Game(QWidget):
         # Подключение Backend Client
         self.client = BackendClient(self.comm.msg_signal, self.nickname)
         self.client.start()
+
+        # нужно чтоб поле успело передаться
+        time.sleep(0.1)
+        print("backend client:: button area")
+        print(self.client.BUTTON_AREA)
         # Todo тут должен быть backend client
         #   send wno am i
 
@@ -140,13 +149,17 @@ class Game(QWidget):
         btn_max_w, btn_max_h = 27, 27
         btn_min_w, btn_min_h = 20, 20
 
-        for i in range(self.BUTTON_COUNT):
-            for j in range(self.BUTTON_COUNT):
+        all_button_color = iter(self.client.BUTTON_AREA)
+
+        for i in range(BUTTON_COUNT):
+            for j in range(BUTTON_COUNT):
                 # дизайн кнопок
                 btn = QPushButton()
                 btn.setMinimumSize(btn_min_w, btn_min_h)
                 btn.setMaximumSize(btn_max_w, btn_max_h)
-                btn.setStyleSheet("background-color : rgb(255, 255, 255);"
+
+                btn_color = next(all_button_color)
+                btn.setStyleSheet(f"background-color : rgb{btn_color};"
                                   "margin: 0px ,0px, 0px, 0px;")
                 btn.clicked.connect(
                     lambda state, x=i, y=j: self.change_color(x, y))
@@ -155,6 +168,7 @@ class Game(QWidget):
 
                 list_button_color = [btn, self.current_color]
                 self.all_buttons.append(list_button_color)
+        print(len(self.all_buttons))
 
     # Возбуждает сигналы и передает значения цвета
     def choose_color(self):
@@ -184,7 +198,7 @@ class Game(QWidget):
         if self.get_signal:
             r, g, b = self.current_color
 
-            current_button_color = self.all_buttons[i * self.BUTTON_COUNT + j]
+            current_button_color = self.all_buttons[i * BUTTON_COUNT + j]
 
             btn_obj = current_button_color[0]
             # нужно для запоминания цвета кнопки
@@ -219,7 +233,7 @@ class Game(QWidget):
                 self.stackedWidget.setCurrentIndex(0)
 
         for btn in self.all_buttons:
-            btn[0].clicked.connect(lambda state, time_block=1: block_choose_color(time_block))
+            btn[0].clicked.connect(lambda state, time_block=5: block_choose_color(time_block))
 
     def exit_popup(self):
         button = QMessageBox.question(self, 'Question', "You really wanna to exit?",
@@ -240,7 +254,7 @@ class Game(QWidget):
             pixels = [btn_color[1] for btn_color in self.all_buttons]
 
             # делим массив на части
-            array = np.array_split(pixels, self.BUTTON_COUNT, axis=0)
+            array = np.array_split(pixels, BUTTON_COUNT, axis=0)
 
             # Convert the pixels into an array using numpy
             array = np.array(array, dtype=np.uint8)

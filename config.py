@@ -1,0 +1,3 @@
+PORT = 10000
+HOST = "localhost"
+BUTTON_COUNT = 30
