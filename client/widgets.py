@@ -80,7 +80,7 @@ class Lobby(QWidget):
 # базовый класс для всех объектов модуля
 class Communication(QObject):
     # создаем свои сигналы
-    msg_signal = pyqtSignal(str)
+    msg_signal = pyqtSignal(dict)
     dataSignal = pyqtSignal(int, int)
     colorDataSignal = pyqtSignal(int, int, int)
 
@@ -125,7 +125,7 @@ class Game(QWidget):
 
         # нужно чтоб поле успело передаться
         time.sleep(0.1)
-        print("backend client:: button area")
+        print("backend client:: generate button area")
         print(self.client.BUTTON_AREA)
         # Todo тут должен быть backend client
         #   send wno am i
@@ -161,6 +161,7 @@ class Game(QWidget):
                 btn_color = next(all_button_color)
                 btn.setStyleSheet(f"background-color : rgb{btn_color};"
                                   "margin: 0px ,0px, 0px, 0px;")
+
                 btn.clicked.connect(
                     lambda state, x=i, y=j: self.change_color(x, y))
 
@@ -176,10 +177,32 @@ class Game(QWidget):
             r, g, b = color
             color_btn.clicked.connect(lambda state, x=r, y=g, z=b: self.save_chosen_btn(x, y, z))
 
+    # фиксирования изменения на сервере
+    def send_button_color(self, coordination, color):
+        print('Game:: send button color', coordination, color)
+        self.client.send(coordination, color)
+
     # отображения появления игроков
-    @pyqtSlot(str)
-    def recv_msg(self, text):
-        self.info_area.append(text)
+    @pyqtSlot(dict)
+    def recv_msg(self, protocol):
+        coordination = protocol.get("coordination")
+        color = protocol.get("color")
+        text = protocol.get('text')
+
+        if text:
+            self.info_area.append(text)
+
+        # если координация и цвет пустые, то нечего
+        if not (coordination and color):
+            return
+
+        x, y = coordination
+
+        current_button_color = self.all_buttons[x * BUTTON_COUNT + y]
+
+        btn_obj = current_button_color[0]
+
+        btn_obj.setStyleSheet(f"background-color : rgb{color}")
 
     # Сохранение цвета выбранного пользователя с палитры
     @pyqtSlot(int, int, int)
@@ -198,9 +221,15 @@ class Game(QWidget):
         if self.get_signal:
             r, g, b = self.current_color
 
+            # отлавливать изменения при нажатии и отправлять на сервер
+            coordination = (i, j)
+            color = r, g, b
+            self.send_button_color(coordination, color)
+
             current_button_color = self.all_buttons[i * BUTTON_COUNT + j]
 
             btn_obj = current_button_color[0]
+
             # нужно для запоминания цвета кнопки
             current_button_color[1] = self.current_color
 

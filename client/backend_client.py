@@ -7,6 +7,7 @@ from PyQt6.QtCore import QThread
 PORT = 10000
 HOST = "localhost"
 
+
 class BackendClient(QThread):
     address = (HOST, PORT)
     BUTTON_AREA = []
@@ -30,25 +31,34 @@ class BackendClient(QThread):
                 self.BUTTON_AREA += obj
                 self.first_connection = False
                 print(self.BUTTON_AREA)
+                continue
 
-            else:
-                print("Backend Client run:: Wait Data")
-                binary_data = self.sock.recv(1024)
-                if binary_data is None or not len(binary_data):
-                    print("Backend Client run:: Break")
-                    break
+            print("Backend Client run:: Wait Data")
+            binary_data = self.sock.recv(1024)
 
-                print("Backend Client run:: data", binary_data, pickle.loads(binary_data))
-                info = pickle.loads(binary_data)
-                text = info.get('text')
+            if binary_data is None or not len(binary_data):
+                print("Backend Client run:: Break")
+                break
 
-                self.signal.emit(text)
+            print("Backend Client run:: data", binary_data, pickle.loads(binary_data))
+            info = pickle.loads(binary_data)
+            coordination = info.get("coordination")
+            color = info.get("color")
+            text = info.get('text')
+
+            protocol = {"coordination": coordination,
+                        "color": color,
+                        "text": text}
+
+            self.signal.emit(protocol)
 
     # Todo надо сделать обработку сигнала,
     #  принимать не все поле, а принимать сделанные ходы пользователем
     #  и менять основное поле которое будет крутиться в main thread
-    def send(self, text):
-        protocol = {"text": text,
-                    "from": self.name,
-                    "when": datetime.datetime.now()}
+    def send(self, coordination=None, color=None, text=None):
+        print("Backend Client:: send", coordination, color)
+        protocol = {"coordination": coordination,
+                    "color": color,
+                    "text": text}
+        print(pickle.dumps(protocol))
         self.sock.send(pickle.dumps(protocol))

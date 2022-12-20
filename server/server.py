@@ -20,24 +20,41 @@ class ConnectedClient(Thread):
 
     def run(self):
         while 1:
+            print('Connection Client:: run')
             info = self.recv()
-            print("recv data:: " + info)
+            # print("recv data:: " + info)
 
-            msg = info.get('text')
-            from_name = info.get('from')
-            date = info.get('when')
-            text = f"[{from_name}][{date}]::{msg}"
-            self.server.send_all_client(text)
+            coordination = info.get("coordination")
+            color = info.get("color")
+            text = info.get('text')
 
-    def send(self, text):
-        protocol = {"text": text,
-                    "from": self.name,
-                    "when": datetime.datetime.now()}
+            # Проверка, что координаты существуют
+            if self.server and coordination:
+                x, y = coordination
+                self.button_area[x * BUTTON_COUNT + y] = color
+                Server.commit_change_button_area(self.button_area)
+                print(self.button_area)
+
+            print(coordination, color, text)
+
+            if text:
+                self.server.send_all_client(text=text)
+            else:
+                self.server.send_all_client_change(coordination, color)
+
+    def send(self, coordination=None, color=None, text=None):
+        print("Connection Client:: send")
+        protocol = {"coordination": coordination,
+                    "color": color,
+                    "text": text}
+        print(protocol)
+        print(pickle.dumps(protocol))
         self.sock.send(pickle.dumps(protocol))
 
     def recv(self):
         print("Connected Client:: recv data")
-        obj = self.sock.recv()
+        obj = self.sock.recv(1024)
+        print(obj)
 
         # обработка при выходе (при выходе возвращает нулевые байты)
         if obj is None or not len(obj):
@@ -73,13 +90,19 @@ class Server:
         start_button_color = (255, 255, 255)
         all_count_button = BUTTON_COUNT * BUTTON_COUNT
         for i in range(all_count_button):
-                all_buttons.append(start_button_color)
+            all_buttons.append(start_button_color)
 
-    def send_all_client(self, text):
+    def send_all_client_change(self, coordination, color):
+        print("Server:: send all client change")
+        for client_data in Server.CLIENTS:
+            client = client_data[0]
+            client.send(coordination, color)
+
+    def send_all_client(self, text, coordination=None, color=None):
         print("Server:: send all client")
         for client_data in Server.CLIENTS:
             client = client_data[0]
-            client.send(text)
+            client.send(text=text)
 
     def send_client(self, button_area, sock):
         print("Server:: send client")
@@ -114,6 +137,10 @@ class Server:
             if client_socket == client:
                 Server.CLIENTS.remove(client_data)
                 break
+
+    @staticmethod
+    def commit_change_button_area(button_area):
+        Server.BUTTON_AREA = button_area
 
 
 if __name__ == "__main__":
