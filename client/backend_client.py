@@ -27,8 +27,7 @@ class BackendClient(QThread):
             if self.first_connection:
                 print("Backend client get button area ::")
                 obj = self.sock.recv(1024 * 16)
-                obj = pickle.loads(obj)
-                self.BUTTON_AREA += obj
+                self.BUTTON_AREA = pickle.loads(obj)
                 self.first_connection = False
                 print(self.BUTTON_AREA)
                 continue

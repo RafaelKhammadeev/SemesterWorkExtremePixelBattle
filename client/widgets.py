@@ -198,6 +198,9 @@ class Game(QWidget):
 
         x, y = coordination
 
+        # нужно для правильного сохранения картинки
+        self.client.BUTTON_AREA[x * BUTTON_COUNT + y] = color
+
         current_button_color = self.all_buttons[x * BUTTON_COUNT + y]
 
         btn_obj = current_button_color[0]
@@ -280,7 +283,7 @@ class Game(QWidget):
                                       defaultButton=QMessageBox.StandardButton.Save)
 
         if button == QMessageBox.StandardButton.Save:
-            pixels = [btn_color[1] for btn_color in self.all_buttons]
+            pixels = [btn_color for btn_color in self.client.BUTTON_AREA]
 
             # делим массив на части
             array = np.array_split(pixels, BUTTON_COUNT, axis=0)
