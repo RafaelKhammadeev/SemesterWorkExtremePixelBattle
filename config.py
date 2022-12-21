@@ -1,3 +1,3 @@
 PORT = 10000
-HOST = "localhost"
+HOST = "172.20.10.3"
 BUTTON_COUNT = 30

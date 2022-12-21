@@ -149,18 +149,22 @@ class Game(QWidget):
         btn_max_w, btn_max_h = 27, 27
         btn_min_w, btn_min_h = 20, 20
 
-        all_button_color = iter(self.client.BUTTON_AREA)
+        all_button_color = self.client.BUTTON_AREA
+        current_color = 0
 
         for i in range(BUTTON_COUNT):
             for j in range(BUTTON_COUNT):
+
                 # дизайн кнопок
                 btn = QPushButton()
                 btn.setMinimumSize(btn_min_w, btn_min_h)
                 btn.setMaximumSize(btn_max_w, btn_max_h)
 
-                btn_color = next(all_button_color)
+                btn_color = all_button_color[current_color]
                 btn.setStyleSheet(f"background-color : rgb{btn_color};"
                                   "margin: 0px ,0px, 0px, 0px;")
+
+                current_color += 1
 
                 btn.clicked.connect(
                     lambda state, x=i, y=j: self.change_color(x, y))
